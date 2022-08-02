@@ -23,8 +23,7 @@ class TestOTXv2(unittest.TestCase):
     Base class configure API Key to use on a per test basis.
     """
     def setUp(self, **kwargs):
-        provided_key = kwargs.get('api_key', '')
-        if provided_key:
+        if provided_key := kwargs.get('api_key', ''):
             self.api_key = provided_key
         else:
             self.api_key = ALIEN_API_APIKEY
@@ -47,7 +46,7 @@ class TestGenerateRules(TestOTXv2):
         self.assertTrue(file_rules)
         # Check each rule matches a very lax regex
         for rule in file_rules:
-            print ("- Validating file rule [" + rule.strip() + "]")
+            print(f"- Validating file rule [{rule.strip()}]")
             self.assertTrue(re.match(FILE_RULE_REGEX, rule.strip()))
 
 
@@ -58,7 +57,7 @@ class TestGenerateRules(TestOTXv2):
         self.assertTrue(ip_rules)
         # Check each rule matches a very lax regex
         for rule in ip_rules:
-            print ("- Validating IP rule [" + rule.strip() + "]")
+            print(f"- Validating IP rule [{rule.strip()}]")
             self.assertTrue(re.match(IPV4_RULE_REGEX, rule.strip()) or re.match(IPV6_RULE_REGEX, rule.strip()))
 
 

@@ -45,18 +45,17 @@ class SuricataClient(object):
                         if type_ in [IndicatorTypes.IPv4.name, IndicatorTypes.IPv6.name]:
                             ip_list.append(indicator["indicator"])
 
-                    if len(md5_list) > 0 and generate_md5_rules:
+                    if md5_list and generate_md5_rules:
                         md5_file = '{0}.txt'.format(pulse_id)
                         self.add_file_rule(file_rule_file, md5_file, pulse, pulse_id)
                         self.write_hash_file(md5_list, md5_file)
                         md5_file_count += 1
-                    if len(ip_list) > 0 and generate_iprep:
+                    if ip_list and generate_iprep:
                         self.add_iprep(rep_file, ip_list)
                         ip_count += len(ip_list)
                 if generate_iprep:
                     self.write_core_iprep_files()
-                    sys.stdout.write(
-                        "Wrote related iprep rules to {}\n".format('otx_iprep.rules'))
+                    sys.stdout.write(f"Wrote related iprep rules to otx_iprep.rules\n")
                     sys.stdout.write("Wrote {0} IPv4 & IPv6 to {1}\n".format(str(ip_count), rep_file.name))
                     sys.stdout.write("========================================\n")
                     sys.stdout.write(
@@ -66,12 +65,15 @@ class SuricataClient(object):
                     sys.stdout.write("========================================\n")
                     sys.stdout.write("NOTE: Please read the docs to adapt for your environment\n")
                     sys.stdout.write("========== Start YAML Snippet ==========\n")
-                    sys.stdout.write("reputation-categories-file: {}\n".format(self.get_path('categories.txt')))
-                    sys.stdout.write("default-reputation-path: {}\n".format(self.base_dir))
+                    sys.stdout.write(
+                        f"reputation-categories-file: {self.get_path('categories.txt')}\n"
+                    )
+
+                    sys.stdout.write(f"default-reputation-path: {self.base_dir}\n")
                     sys.stdout.write("reputation-files:\n")
                     sys.stdout.write(" - reputation.list\n")
                     sys.stdout.write("rule-files:\n")
-                    sys.stdout.write(" - {}\n".format(self.get_path('otx_iprep.rules')))
+                    sys.stdout.write(f" - {self.get_path('otx_iprep.rules')}\n")
                     sys.stdout.write("==========  End YAML Snippet  ==========\n")
                 if generate_md5_rules:
                     sys.stdout.write("Wrote {0} md5 hash files to {1}\n".format(str(md5_file_count), self.base_dir))
@@ -133,9 +135,6 @@ def getArgs():
 if __name__ == '__main__':
     print (sys.argv)
     args = getArgs()
-    if args.destination_directory:
-        base_dir = args.destination_directory
-    else:
-        base_dir = os.getcwd()
+    base_dir = args.destination_directory or os.getcwd()
     sclient = SuricataClient(args.key, base_dir=base_dir)
     sclient.generate_rules(not args.skip_iprep, not args.skip_filemd5)
